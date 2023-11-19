@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import { animateScroll as scroll } from 'react-scroll';
 import { fetchImages } from '../Services/Api';
 import { GlobalStyle } from "components/Services/GlobalStyle";
@@ -8,44 +8,34 @@ import { ImageGallery } from "components/ImageGallery/ImageGallery";
 import toast, { Toaster } from 'react-hot-toast';
 import { Button } from "components/Button/Button";
 import { AppContainer } from "./App.style";
-export class App extends Component {
-    state = {
-        images: [],
-        query: '',
-        page: 1,
-        largeImage: '',
-        tags: '',
-        isLoading: false,
-        loadMore: false,
-        total: 0,
-  }; 
 
-  componentDidUpdate(prevProps, prevState) {
-      const { query, page } = this.state;
-    if (prevState.page !== page || prevState.query !== query) {
-      this.fetchImages( query, page );
-    }    
-  }
-
-  fetchImages = async (query, page) => {
-    if (!query) {
-      return;
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadMore, setLoadMore] = useState(false);
+ 
+  useEffect(() => {
+    if (query === '') {
+      return
     }
+  
+    const getPhotos = async () => {  
 
-    this.setState({ isLoading: true }); 
-
+    setIsLoading(true);
+  
     try {           
       const { hits, totalHits } = await fetchImages(query, page);
       
-        if (hits.length === 0 && page === 1) {
+        if (totalHits === 0 && page === 1) {
            toast.error('Sorry, there are no images matching your search query. Please try again.'); 
          return;
-        } 
-      this.setState((prevState) => ({
-        images: [...prevState.images, ...hits],
-        total: totalHits,
-        loadMore: page < Math.ceil(totalHits / 12),
-      }));
+      } 
+
+      setImages((prevImages) => [...prevImages, ...hits]);
+     
+      setLoadMore(page < Math.ceil(totalHits / 12));
 
       scroll.scrollToBottom({
             duration: 800,
@@ -55,42 +45,43 @@ export class App extends Component {
     } catch (error) {
        toast.error('Oops! Something went wrong. Please try again later.', error);
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
-  };
+    };
+   
+      getPhotos();
+    
+   }, [query, page]);
   
-  onSubmit = query => {
-    if (this.state.query !== query) {
-      this.setState({
-        query,
-        images: [],
-        page: 1,
-      });
-    }
+  const onSubmit = newQuery => {
+    if (query !== newQuery) {       
+      setQuery(newQuery);
+      setImages([]);
+      setPage(1);
+    }  
   };
 
-  handleImageClick = (largeImage) => {
-    this.setState({ largeImage });
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  };
-     
-  render() {
-     const { isLoading, images, loadMore } = this.state;
-        
-    return (
+  return (
       <AppContainer>        
-        <Searchbar onSubmit={this.onSubmit} /> 
+        <Searchbar onSubmit={onSubmit} /> 
         {isLoading && <Loader />}
-        {images.length > 0 && <ImageGallery images={images} onImageClick={this.handleImageClick} />}
-        {loadMore && <Button onClick={this.handleLoadMore} disabled={isLoading}></Button>}
+        {images.length > 0 && <ImageGallery images={images} />}
+        {loadMore && <Button onClick={handleLoadMore} disabled={isLoading}></Button>}
         <GlobalStyle />
         <Toaster position="top-center" />
       </AppContainer>
     );
-  }
-}
+};
+
+  
+
+  
+  
+
+ 
+ 
+   

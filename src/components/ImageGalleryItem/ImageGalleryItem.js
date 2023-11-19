@@ -1,26 +1,18 @@
 import { ModalWindow } from 'components/Modal/Modal';
-import { Component } from 'react';
+import { useState } from 'react';
 import { ImageGalleryImage, ImageGalleryItemLi } from './ImageGalleryItem.style';
-export class ImageGalleryItem extends Component {
-  state = {
-    isModalOpen: false,
-  };
 
-  toggleModal = () => {
-    this.setState(({ isModalOpen }) => ({
-      isModalOpen: !isModalOpen,
-      }));
-    };
+export const ImageGalleryItem = ({ webformatURL, largeImageURL, tags }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  render() {
-    const { id, webformatURL, largeImageURL, tags } = this.props;
-    const { isModalOpen } = this.state;
-    return (
-      <ImageGalleryItemLi key={id}>
-        <ImageGalleryImage src={webformatURL} alt={tags} onClick={this.toggleModal} />
+  const toggleModal = () => setIsModalOpen(!isModalOpen); 
+
+  return (
+      <ImageGalleryItemLi onClick={toggleModal}>
+        <ImageGalleryImage src={webformatURL} alt={tags} />
         {isModalOpen && (
           <ModalWindow
-            onClose={this.toggleModal}
+            onClose={toggleModal}
             largeImageURL={largeImageURL}
             tags={tags}
             isOpen={isModalOpen}
@@ -28,6 +20,6 @@ export class ImageGalleryItem extends Component {
         )}
       </ImageGalleryItemLi>
     );
-  }
-}
+};
+
 

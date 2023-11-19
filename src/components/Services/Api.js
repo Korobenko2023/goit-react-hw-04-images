@@ -13,7 +13,7 @@ export const fetchImages = async (query, page) => {
         per_page: 12,
     };
     
-     const { data } = await axios.get(BASE_URL, { params });
+    const { data } = await axios.get(BASE_URL, { params });
      return data;
 }
 
