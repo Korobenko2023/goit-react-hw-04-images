@@ -8,8 +8,10 @@ export const ImageGalleryItem = ({ webformatURL, largeImageURL, tags }) => {
   const toggleModal = () => setIsModalOpen(!isModalOpen); 
 
   return (
+    <>
       <ImageGalleryItemLi onClick={toggleModal}>
         <ImageGalleryImage src={webformatURL} alt={tags} />
+      </ImageGalleryItemLi>
         {isModalOpen && (
           <ModalWindow
             onClose={toggleModal}
@@ -18,8 +20,9 @@ export const ImageGalleryItem = ({ webformatURL, largeImageURL, tags }) => {
             isOpen={isModalOpen}
           />
         )}
-      </ImageGalleryItemLi>
-    );
+      
+    </>
+  );
 };
 
 
